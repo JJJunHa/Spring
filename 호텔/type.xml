@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.human.springboot.TDAO">
+<select id="typelist" resultType="com.human.springboot.typeDTO">
+ 	SELECT typenumber, typename FROM roomtype order by typenumber
+</select>
+
+<select id="typelistCh" resultType="com.human.springboot.typeDTO">
+ 	SELECT typename FROM roomtype 
+ 	where typenumber=#{param1}
+ 	order by typenumber
+</select>
+
+<insert id="type_insert">
+	insert into roomtype(TYPENAME,TYPENUMBER) values(#{param1},type_seq.nextval)
+</insert>
+
+<delete id="type_delete">
+	delete from roomtype
+	where TYPENUMBER=#{param1}
+</delete>
+
+<update id="type_update">
+	update roomtype set typename=#{param1} where TYPENUMBER=#{param2} 
+</update>
+
+
+
+<select id="roomlist" resultType="com.human.springboot.roomDTO">
+ 	select roomnumber, typenumber, roomname, personnel, fee, room_seq from roominfo order by room_seq
+</select>
+
+
+<select id="roomlistUp" resultType="com.human.springboot.roomDTO">
+ 	<![CDATA[
+ 	SELECT DISTINCT roomname,Room_seq 
+	FROM RoomInfo 
+	WHERE Room_seq NOT IN (
+	  SELECT r.Room_seq 
+	  FROM book b 
+	  JOIN RoomInfo r ON b.ROOMNUMBER = r.Room_seq 
+	  WHERE b.CHECKIN <= TO_DATE(#{param2}, 'yyyy-mm-dd hh24:mi') AND b.CHECKOUT >= TO_DATE(#{param1}, 'yyyy-mm-dd hh24:mi')
+	)
+	]]>
+</select>
+
+<insert id="room_insert">
+insert into roominfo values(#{param1},#{param2},#{param3},#{param4},#{param5},room_seq.nextval)
+</insert>
+
+<delete id="room_delete">
+	delete from roominfo
+	where room_seq=#{param1}
+</delete>
+<update id="room_update">
+	update roominfo set roomnumber=#{param1}, typenumber=#{param2},roomname=#{param3},personnel=#{param4},fee=#{param5} where room_seq=#{param6} 
+</update>
+
+<select id="roomlistCh" resultType="com.human.springboot.roomDTO">
+ 	SELECT r.roomnumber, r.typenumber, t.typename, r.roomname, r.personnel, r.fee, r.room_seq 
+	FROM roominfo r 
+	JOIN roomtype t ON r.typenumber = t.typenumber
+	WHERE r.room_seq = #{param1}
+	ORDER BY r.room_seq
+</select>
+
+<insert id="insert">
+	insert into menu(s_no,menu,price) values(SEGNO.nextval,#{param1},#{param2})
+</insert>
+
+
+
+<select id="booklist" resultType="com.human.springboot.bookDTO">
+ 	SELECT b.CHECKIN, b.CHECKOUT, b.PERSONNEL, b.TOTALFEE, b.REPRESENTATIVE, b.MOBILE, b.BOOK_SEQ, ri.roomname, ri.roomnumber, rt.typename
+	FROM book b
+	JOIN roominfo ri ON b.ROOMNUMBER = ri.room_seq
+	JOIN roomtype rt ON ri.typenumber = rt.typenumber
+	ORDER BY b.BOOK_SEQ
+</select>
+
+<update id="book_update">
+ 	update book set CHECKIN=TO_DATE(#{param1}, 'yyyy-mm-dd hh24:mi'), CHECKOUT=TO_DATE(#{param2}, 'yyyy-mm-dd hh24:mi'),ROOMNUMBER=#{param3},PERSONNEL=#{param4},TOTALFEE=#{param5},REPRESENTATIVE=#{param6},MOBILE=#{param7} where book_seq=#{param8} 
+</update>
+
+<insert id="book_insert">
+	INSERT INTO book 
+	VALUES (TO_DATE(#{param1}, 'yyyy-mm-dd hh24:mi'), 
+			TO_DATE(#{param2}, 'yyyy-mm-dd hh24:mi'), 
+	        #{param3}, 
+	        #{param4}, 
+	        #{param5}, 
+	        #{param6}, 
+	        #{param7}, 
+	        book_seq.nextval)
+</insert>
+<delete id="book_delete">
+	delete from book
+	where book_seq=#{param1}
+</delete>
+<select id="getEMP" resultType="com.human.springboot.empDTO" >
+      select employee_id,emp_name,manager_id from employees
+   </select>
+
+</mapper>
